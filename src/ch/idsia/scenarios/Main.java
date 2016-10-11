@@ -31,7 +31,7 @@ import ch.idsia.benchmark.tasks.BasicTask;
 
 import ch.idsia.tools.MarioAIOptions;
 import ch.idsia.agents.Agent;
-import ch.idsia.agents.controllers.ForwardJumpingAgent;
+import ch.idsia.agents.controllers.OwnAgent;
 
 /**
  * Created by IntelliJ IDEA. User: Sergey Karakovskiy, sergey at idsia dot ch Date: Mar 17, 2010 Time: 8:28:00 AM
@@ -42,17 +42,18 @@ public final class Main
 public static void main(String[] args)
 {
     final MarioAIOptions marioAIOptions = new MarioAIOptions(args);
-    final Agent agent = new ForwardJumpingAgent();
+    final Agent agent = new OwnAgent();
     marioAIOptions.setAgent(agent);
     
     marioAIOptions.setEnemies("ggk");
     
-    int d = 100;
+    int d = 5;
     marioAIOptions.setLevelDifficulty(d);
     
-    int seed = 99;
+    int seed = 1;
     marioAIOptions.setLevelRandSeed(seed);
     
+    marioAIOptions.setEnemies("off");
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     basicTask.setOptionsAndReset(marioAIOptions);
     basicTask.doEpisodes(1,true,1);

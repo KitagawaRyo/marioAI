@@ -60,9 +60,9 @@ public void reset()
 
 public boolean[] getAction()
 {
-	if(! (isObstacle(marioEgoRow + 1, marioEgoCol + 1) || 
-			isObstacle(marioEgoRow + 2, marioEgoCol + 1) ||
-			isObstacle(marioEgoRow + 3, marioEgoCol + 1))){
+	if(!(isObstacle(marioEgoRow + 1, marioEgoCol + 1) || 
+		   isObstacle(marioEgoRow + 2, marioEgoCol + 1) ||
+			 isObstacle(marioEgoRow + 3, marioEgoCol + 1))){
 		action[Mario.KEY_JUMP] = isMarioAbleToJump || ! isMarioOnGround;
 	}
 	if(isObstacle(marioEgoRow, marioEgoCol + 1) || 
