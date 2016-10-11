@@ -63,7 +63,7 @@ public static void main(String[] args)
     marioAIOptions.setHiddenBlocksCount(true);
     marioAIOptions.setBlocksCount(true);
     marioAIOptions.setCoinsCount(true);
-    marioAIOptions.setFlatLevel(false);
+    marioAIOptions.setFlatLevel(true);
     
     final BasicTask basicTask = new BasicTask(marioAIOptions);
     basicTask.setOptionsAndReset(marioAIOptions);

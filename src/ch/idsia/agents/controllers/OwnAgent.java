@@ -28,8 +28,11 @@
 package ch.idsia.agents.controllers;
 
 import ch.idsia.agents.Agent;
+import ch.idsia.benchmark.mario.engine.GeneralizerLevelScene;
 import ch.idsia.benchmark.mario.engine.sprites.Mario;
+import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import ch.idsia.benchmark.mario.environments.Environment;
+import java.util.Random;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,10 +55,28 @@ public OwnAgent()
 public void reset()
 {
     action = new boolean[Environment.numberOfKeys];
+    action[Mario.KEY_RIGHT] = true;
 }
 
 public boolean[] getAction()
 {
-    return action;
+	if(! (isObstacle(marioEgoRow + 1, marioEgoCol + 1) || 
+			isObstacle(marioEgoRow + 2, marioEgoCol + 1) ||
+			isObstacle(marioEgoRow + 3, marioEgoCol + 1))){
+		action[Mario.KEY_JUMP] = isMarioAbleToJump || ! isMarioOnGround;
+	}
+	if(isObstacle(marioEgoRow, marioEgoCol + 1) || 
+			getEnemiesCellValue(marioEgoRow, marioEgoCol + 2) != Sprite.KIND_NONE 
+			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE){
+		action[Mario.KEY_JUMP] = isMarioAbleToJump || ! isMarioOnGround;
+	}
+	return action;
+}
+
+public boolean isObstacle(int r, int c){
+	return getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.BRICK
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.BORDER_CANNOT_PASS_THROUGH
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.FLOWER_POT_OR_CANNON
+			|| getReceptiveFieldCellValue(r, c)==GeneralizerLevelScene.LADDER;
 }
 }
