@@ -70,6 +70,7 @@ public boolean[] getAction()
 			|| getEnemiesCellValue(marioEgoRow, marioEgoCol + 1) != Sprite.KIND_NONE){
 		action[Mario.KEY_JUMP] = isMarioAbleToJump || ! isMarioOnGround;
 	}
+	
 	return action;
 }
 
