@@ -18,16 +18,16 @@ import ch.idsia.utils.wox.serial.Easy;
 import ch.idsia.agents.MCAgent;
 import ch.idsia.agents.KeyOfMC;
 
-public class LearningWithMC implements LearningAgent{
+public class OwnLearningWithAS implements LearningAgent{
 	private Agent agent;
-	private String name = "LearningWithMC";
+	private String name = "OwnLearningWithAS";
 	//目標値(4096.0はステージの右端)
 	private float goal = 4096.0f;
 	private String args;
 	//試行回数
 	private int numOfTrial = 50000;
 	//コンストラクタ
-	public LearningWithMC(String args){
+	public OwnLearningWithAS(String args){
 		this.args = args;
 		agent = new MCAgent();
 	}
@@ -40,7 +40,7 @@ public class LearningWithMC implements LearningAgent{
 				show();
 				break;
 			}
-			if(i % 5000 == 4999)
+			if(i % 1000 == 999)
 				show();
 		}
 
@@ -120,11 +120,10 @@ public class LearningWithMC implements LearningAgent{
 		EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 		//報酬取得
 		float reward = evaluationInfo.distancePassedPhys;
-		float rewardH = evaluationInfo.distancePassedCells;
- 		//reward -= (evaluationInfo.marioStatus == 0) ? 1000 : 0;
+		//reward -= (evaluationInfo.marioStatus == 0) ? 1000 : 0;
 		System.out.println(reward);
 		//ベストスコアが出たら更新
-		if(reward > MCAgent.bestScore && rewardH > MCAgent.bestHight){
+		if(reward > MCAgent.bestScore){
 			MCAgent.bestScore = reward;
 			MCAgent.best = new ArrayList<Integer>(MCAgent.actions);
 		}

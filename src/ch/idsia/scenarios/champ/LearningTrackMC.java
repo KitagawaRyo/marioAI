@@ -66,8 +66,8 @@ private static void evaluateSubmission(MarioAIOptions marioAIOptions, LearningAg
     /* LearningAgentの初期化 */
     learningAgent.init();
 
-//    for(int i=0 ; i<LearningTask.getEvaluationQuota() ; i++){	//forで繰り返す???
-//    	System.out.println("世代 : "+i);
+    //for(int i=0 ; i<LearningTask.getEvaluationQuota() ; i++){	//forで繰り返す???
+    	//System.out.println("世代 : "+i);
     learningAgent.learn();
    	// launches the training process. numberOfTrials happen here
    	/*for(int i = 0; i < 64; ++i){

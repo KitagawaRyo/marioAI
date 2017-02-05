@@ -12,7 +12,7 @@ import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.MarioAIOptions;
 import ch.idsia.utils.wox.serial.Easy;
 
-public class LearningWithGA implements LearningAgent{
+public class LearningWithGA3 implements LearningAgent{
 
 	/* 個体数 */
 	final int popsize = 100;
@@ -25,7 +25,7 @@ public class LearningWithGA implements LearningAgent{
 
 //	private LearningTask task = null;
 	private String name = "LearningWithGA";
-	private GAAgent[] agents;
+	private GAAgent3[] agents;
 	private Agent bestAgent;
 	private String args;
 	/* 評価時最大値保持用変数 */
@@ -41,15 +41,15 @@ public class LearningWithGA implements LearningAgent{
 
 
 	/* LearningWithGA コンストラクタ */
-	public LearningWithGA(String args){
+	public LearningWithGA3(String args){
 
 		/* 評価値を初期化 */
 		fmax = 0;
 
 		/* 個体数分だけAgentを作成 */
-		agents = new GAAgent[popsize];
+		agents = new GAAgent3[popsize];
 		for (int i=0; i<agents.length; i++){
-			agents[i] = new GAAgent();
+			agents[i] = new GAAgent3();
 		}
 
 		/* agent[0] をbestAgentとして初期化 */
@@ -67,9 +67,9 @@ public class LearningWithGA implements LearningAgent{
 			/* 100個体の評価 */
 
 			compFit();
-			GAAgent nextagents[] = new GAAgent[popsize];
+			GAAgent3 nextagents[] = new GAAgent3[popsize];
 			for (int i=bestnum; i<popsize; i++){
-				nextagents[i] = new GAAgent();
+				nextagents[i] = new GAAgent3();
 			}
 
 
@@ -139,18 +139,13 @@ public class LearningWithGA implements LearningAgent{
 			/* 評価値(距離)をセット */
 			EvaluationInfo evaluationInfo = basicTask.getEvaluationInfo();
 			int evaluation = evaluationInfo.distancePassedCells;
-			if(agents[i].getHeight()){evaluation = evaluation + 5;}
-			if(agents[i].getHeight2()){evaluation = evaluation + 5;}
-			if(agents[i].getHeightValue() == 2){
-				evaluation = evaluation + 10;
-			}else if(agents[i].getHeightValue() == 0){
-				evaluation -= 10;
+			if(agents[i].getHeight()){
+				evaluation += 10;
 			}
-			if(agents[i].getHeightValue2()){
-				evaluation = evaluation + 10;
-			}
-			if(agents[i].getHeightValue3()){
-				evaluation -= 5;
+			if(agents[i].getHeight2() == 2){
+				evaluation += 10;
+			}else if(agents[i].getHeight2() == 1){
+				evaluation += 5;
 			}
 			agents[i].setFitness(evaluation);
 
@@ -237,7 +232,7 @@ public class LearningWithGA implements LearningAgent{
 	}
 
 	/* 交叉 */
-	private void cross(GAAgent[] nextagents, int[] parentsGene, int i) {
+	private void cross(GAAgent3[] nextagents, int[] parentsGene, int i) {
 
 		int geneLength = (1<<16);
 
@@ -404,3 +399,4 @@ public class LearningWithGA implements LearningAgent{
 	}
 
 }
+

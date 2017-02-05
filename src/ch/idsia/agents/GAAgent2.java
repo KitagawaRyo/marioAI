@@ -12,16 +12,16 @@ import ch.idsia.evolution.Evolvable;
  * シフト演算子 x << y
  * xをyビットだけ左シフトする。空いた下位ビット(右側)には0を挿入。
  */
-public class GAAgent extends BasicMarioAIAgent
+public class GAAgent2 extends BasicMarioAIAgent
 implements Agent,Evolvable,Comparable,Cloneable{
 	
 	boolean height = false;
-	boolean height2 = false;
+	int height2 = 0;
 	int heightValue = 0;
 	boolean heightValue2 = false;
 	boolean heightValue3 = false;
 	int deadEnd = 0;
-	static String name = "GAAgent";
+	static String name = "GAAgent2";
 
 	/* 遺伝子情報 */
 	public byte[] gene;
@@ -36,7 +36,7 @@ implements Agent,Evolvable,Comparable,Cloneable{
 	Random r = new Random();
 
 	/* コンストラクタ */
-	public GAAgent(){
+	public GAAgent2(){
 
 		super(name);
 
@@ -99,7 +99,7 @@ implements Agent,Evolvable,Comparable,Cloneable{
 
 	/* 降順にソート */
 	public int compareTo(Object obj){
-	   	GAAgent otherUser = (GAAgent) obj;
+	   	GAAgent2 otherUser = (GAAgent2) obj;
     	return -(this.fitness - otherUser.getFitness());
 	}
 
@@ -153,52 +153,6 @@ implements Agent,Evolvable,Comparable,Cloneable{
 		    action[Mario.KEY_RIGHT] = true;
 			action[Mario.KEY_SPEED] = true;
 		//}
-		if(dc >= 100 && dc <= 101 && isObstacle(y - 2, x + 1)){
-			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-		}
-		if(dc == 107){
-			if(isObstacle(y+1, x) && !isObstacle(y+2, x) && getReceptiveFieldCellValue(y+3, x) != 0){
-				height =true;
-			}
-		}
-		if(dc >= 103 && dc <= 105 && isObstacle(y - 3, x + 1) && isObstacle( y + 2, x )){
-			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-		}
-		if(dc == 101){
-			if(isObstacle(y+1, x) && !isObstacle(y+2, x)){
-				height2 = true;
-			}
-		}
-//		if(deadEnd == 1){
-//			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-//		}
-		if(dc >= 110 && dc <= 120 ){
-			if(marioFloatPos[1] < 95){
-				heightValue = 2;
-			}else if(marioFloatPos[1] >= 95 && marioFloatPos[1] <= 105){
-				heightValue = 1;
-			}
-		}
-		if(dc <= 131 && dc >= 123){
-			if(marioFloatPos[1] < 120){
-				heightValue3 = false;
-			}else{
-				heightValue3 = true;
-			}
-		}
-		if(dc >=150 && dc <= 160 && marioFloatPos[1] > 130){
-			heightValue2 = true;
-		}
-//		else if(dc >=150 && dc <= 162){
-//			action[Mario.KEY_LEFT] = true;
-//			action[Mario.KEY_RIGHT] = false;
-//		}
-		if(dc >=115 && dc <= 117 && marioFloatPos[1] < 100){
-			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-		}
-		if(dc >= 101 && dc <= 131){
-			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
-		}
 		if(isObstacle(y , x + 1)){
 			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
 		}
@@ -206,15 +160,53 @@ implements Agent,Evolvable,Comparable,Cloneable{
 			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
 		}
 		
-//		System.out.println(deadEnd);
+		if(dc >= 102 && dc <= 120){
+			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+		}
+		if(dc >= 102 && dc <= 125){
+			if(marioFloatPos[1] <= 85){
+				height = true;
+			}
+		}
+		if(dc <= 125 && dc >= 123){
+			if(marioFloatPos[1] >= 15){
+				action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+				action[Mario.KEY_RIGHT] = false;
+				action[Mario.KEY_LEFT] = true;
+			}else {
+				action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+			}
+		}
+		if(dc >= 127 && dc <= 130){
+			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+		}
+		if(dc >= 140 && dc <= 144){
+			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+			if(marioFloatPos[1] <= 50){
+				height2 = 2;
+			}else if(marioFloatPos[1] <= 50){
+				height2 = 1;
+			}
+		}
+		if(dc >= 139 && dc <= 144 && marioFloatPos[1] <= 88 && marioFloatPos[1] >= 70){
+			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;
+			action[Mario.KEY_LEFT] = true;			
+			action[Mario.KEY_RIGHT] = false;
+		}
+		
+		if(isObstacle(y, x+1) || isObstacle(y-1, x+1)){
+			action[Mario.KEY_JUMP] = isMarioAbleToJump || !isMarioOnGround;;
+		}
+		
+//		System.out.println(marioFloatPos[1]);
 		return action;
 	}
 	
 	// 行き止まりを検出
 	public void detectDeadEnd(int y, int x){
 		int l = 0;
-		for(int i = 0; i < 4; ++i){
-			if(getReceptiveFieldCellValue(y - i + 3, x + 1) != 0){
+		for(int i = 0; i < 5; ++i){
+			if(getReceptiveFieldCellValue(y - i, x + 1) != 0){
 				l++;
 			}
 		}
@@ -263,11 +255,11 @@ implements Agent,Evolvable,Comparable,Cloneable{
 	}
 
 	@Override
-	public GAAgent clone(){
+	public GAAgent2 clone(){
 
-		GAAgent res = null;
+		GAAgent2 res = null;
 		try{
-			res = (GAAgent)super.clone();
+			res = (GAAgent2)super.clone();
 		}catch(CloneNotSupportedException e){
 			throw new InternalError(e.toString());
 		}
@@ -291,7 +283,7 @@ implements Agent,Evolvable,Comparable,Cloneable{
     	return height;
     }
     
-    public boolean getHeight2(){
+    public int getHeight2(){
     	return height2;
     }
     
@@ -307,3 +299,4 @@ implements Agent,Evolvable,Comparable,Cloneable{
     	return heightValue3;
     }
 }
+

@@ -1,4 +1,5 @@
 package ch.idsia.agents;
+
 import java.util.*;
 import java.math.*;
 
@@ -8,10 +9,12 @@ import ch.idsia.benchmark.mario.engine.sprites.Sprite;
 import ch.idsia.benchmark.mario.environments.*;
 import ch.idsia.agents.KeyOfMC;
 
-public class MCAgent extends BasicMarioAIAgent implements Agent{
-	static String name = "MCAgent";
+public class OwnASAgent extends BasicMarioAIAgent implements Agent{
+	int x = marioEgoCol;
+	int y = marioEgoRow;
+	static String name = "OwnMCAgent";
 	//前方2マスの縦何マスを取得するか
-	public static final int width = 4;
+	public static final int width = 3;
 	//取り得る行動の数
 	public static final int numOfAction = 12;
 	//J：ジャンプ　S：ファイア　R：右　L：左　D：下
@@ -39,11 +42,12 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 	public static List<Integer> best;
 	//学習中にもっとも良かったスコア
 	public static float bestScore;
-	public static float bestHight;
 	//マリオの周りの状態とマリオが地面についているか
 	private static int state = 0;
 	//前1マスに崖があるか 0 : ない 1 : ある
 	private static int cliff = 0;
+	//前１マスに行き止まりがあるか 0 : ない　１：ある
+	private static int deadEnd = 0;
 	//マリオがジャンプできるか 0 : できない 1 : できる
 	private static int ableToJump = 0;
 	//毎フレームで貪欲な選択をするかどうか
@@ -52,7 +56,7 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 	//valueのIntegerはこのMCでは使わない
 	public static HashMap<KeyOfMC,Integer> selected;
 	//行動価値関数　これを基に行動を決める
-	public static float[][][][] qValue;
+	public static float[][][][][] qValue;
 	//各状態行動対におけるそれまで得た報酬の合計
 	public static float[][][][] sumValue;
 	//ある状態である行動を取った回数
@@ -97,9 +101,9 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 	}
 	*/
 	//コンストラクタ
-	public MCAgent(){
+	public OwnASAgent(){
 		super(name);
-		qValue = new float[(int)Math.pow(2.0,4 * width + 1)][2][2][numOfAction];
+		qValue = new float[(int)Math.pow(2.0,4 * width + 1)][2][2][2][numOfAction];
 		sumValue = new float[(int)Math.pow(2.0,4 * width  + 1)][2][2][numOfAction];
 		num = new int[(int)Math.pow(2.0,4 * width + 1)][2][2][numOfAction];
 		selected = new HashMap<KeyOfMC,Integer>();
@@ -107,10 +111,12 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 			for(int j = 0; j < 2; ++j){
 				for(int k = 0; k < 2; ++k){
 					for(int t = 0; t < numOfAction; ++t){
-						qValue[i][j][k][t] = 0.0f;
+						for(int s = 0; s < 2; s++){
+						qValue[i][j][k][s][t] = 0.0f;
 						//一応全パターンは1回は試したいのである程度の値は持たせる
 						sumValue[i][j][k][t] = 4096.0f;
 						num[i][k][k][t] = 1;
+						}
 					}
 				}
 			}
@@ -119,12 +125,12 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 		best = new ArrayList<Integer>();
 	}
 	//行動価値関数を取得
-	public static float[][][][] getQ(){
+	public static float[][][][][] getQ(){
 		return qValue;
 	}
 	//行動価値関数を取得
 	//学習した後に再現で使う
-	public static void setQ(float[][][][] q){
+	public static void setQ(float[][][][][] q){
 		qValue = q;
 	}
 	//障害物を検出し、stateの各bitに0,1で格納
@@ -133,19 +139,19 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 	public void detectObstacle(){
 		state = 0;
 		for(int j = 0; j < width; ++j){
-			if(getEnemiesCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != Sprite.KIND_NONE)
+			if(getEnemiesCellValue(y - j + 2,x + 1) != Sprite.KIND_NONE)
 				state += (int)Math.pow(2,j);
 		}
 		for(int j = 0; j < width; ++j){
-			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 1) != 0)
+			if(getReceptiveFieldCellValue(y - j + 2,x + 1) != 0)
 				state += (int)Math.pow(2,width + j);
 		}
 		for(int j = 0; j < width; ++j){
-			if(getEnemiesCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != Sprite.KIND_NONE)
+			if(getEnemiesCellValue(y - j + 2,x + 2) != Sprite.KIND_NONE)
 				state += (int)Math.pow(2, 2 * width + j);
 		}
 		for(int j = 0; j < width; ++j){
-			if(getReceptiveFieldCellValue(marioEgoRow + j - 1,marioEgoCol + 2) != 0)
+			if(getReceptiveFieldCellValue(y - j + 2,x + 2) != 0)
 				state += (int)Math.pow(2,3 * width + j);
 		}
 		if(isMarioOnGround)
@@ -166,6 +172,25 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 			}
 		}
 		cliff = (b) ? 1 : 0;
+	}
+	
+	// 行き止まりを検出
+	public void detectDeadEnd(){
+		boolean d = true;
+		int l = 0;
+		for(int i = 0; i < 5; ++i){
+			if(getReceptiveFieldCellValue(y - i, x) != 0){
+				l++;
+			}
+		}
+		if(l >= 5){
+			deadEnd = 1;
+		}
+	}
+	
+	// 目的地を設定
+	public void setGoal(){
+		
 	}
 	//ソフトマックス手法
 	//使わない
@@ -202,7 +227,7 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 		}else{
 			float max = -Float.MAX_VALUE;
 			for(int i = 0; i < numOfAction; ++i){
-				float q = qValue[state][cliff][ableToJump][i];
+				float q = qValue[state][cliff][deadEnd][ableToJump][i];
 				if(q > max){
 					max = q;
 					idx = i;
@@ -216,7 +241,7 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 		int idx = 0;
 		float max = -Float.MAX_VALUE;
 		for(int i = 0; i < numOfAction; ++i){
-			float q = qValue[state][cliff][ableToJump][i];
+			float q = qValue[state][cliff][deadEnd][ableToJump][i];
 			if(q > max){
 				max = q;
 				idx = i;
@@ -268,3 +293,4 @@ public class MCAgent extends BasicMarioAIAgent implements Agent{
 		return action;
 	}
 }
+
